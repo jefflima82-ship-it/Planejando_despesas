@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Priorização de Despesas Dinâmico</title>
+  <style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 10px;
+  background-color: #121212;
+  color: #e0e0e0;
+}
+
+.container {
+  max-width: 600px;
+  margin: auto;
+  background: #1e1e1e;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.6);
+}
+
+h2, h3 {
+  text-align: center;
+  color: #ffffff;
+  font-size: 1.4em;
+}
+
+.instruction {
+  background-color: #2c2c2c;
+  border-left: 5px solid #4caf50;
+  padding: 10px;
+  margin-bottom: 20px;
+  font-size: 0.95em;
+  color: #ccc;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  font-size: 0.95em;
+  color: #ddd;
+}
+
+input, select {
+  width: 100%;
+  padding: 10px;
+  font-size: 1em;
+  border: 1px solid #444;
+  border-radius: 4px;
+  box-sizing: border-box;
+  background-color: #2a2a2a;
+  color: #e0e0e0;
+}
+
+input[type="range"] {
+  margin-top: 5px;
+}
+
+.scale-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85em;
+  color: #aaa;
+}
+
+button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+  font-size: 1em;
+  margin-top: 10px;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+#resumo-section {
+  margin-top: 30px;
+  border-top: 2px solid #333;
+  padding-top: 20px;
+}
+
+#resumo-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  overflow-x: auto;
+  display: block;
+}
+
+#resumo-tabela th, #resumo-tabela td {
+  border: 1px solid #444;
+  padding: 8px;
+  text-align: left;
+  font-size: 0.9em;
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+}
+
+#resumo-tabela th {
+  background-color: #333;
+}
+
+.copy-button {
+  background-color: #007bff;
+  margin-bottom: 15px;
+}
+
+.copy-button:hover {
+  background-color: #0056b3;
+}
+  </style>
+</head>
+<body>
+<div class="container">
+  <h2>Priorização de Despesas: Análise Familiar Colaborativa</h2>
+  <div class="instruction">
+    <strong>INSTRUÇÃO:</strong> Após preencher, clique em "Adicionar Despesa à Tabela". Repita o processo para todas as despesas. Ao final, copie a tabela abaixo para o Excel.
+  </div>
+  <form id="despesa-form">
+    <div class="form-group">
+      <label for="nome">1. Nome do Membro da Família:</label>
+      <input type="text" id="nome" name="nome" required placeholder="Digite seu nome">
+    </div>
+      <div class="form-group">
+        <label for="despesa">2. Despesa:</label>
+        <select id="despesa" name="despesa" required>
+          <option value="" disabled selected>Selecione uma despesa</option>
+	
+          <optgroup label="🏠 Moradia">
+            <option value="Condomínio">Condomínio</option>
+            <option value="Celular / Internet (Claro)">Celular / Internet (Claro)</option>
+            <option value="Conta de luz">Conta de luz</option>
+            <option value="Gás">Gás</option>
+            <option value="TV">TV</option>
+            <option value="Seguro do apartamento">Seguro do apartamento</option>
+            <option value="Manutenção ou reparos casa">Manutenção ou reparos casa</option>
+            <option value="Outros para casa">Outros para casa</option>
+          </optgroup>
+
+          <optgroup label="🚗 Transporte">
+            <option value="Lavagem">Lavagem</option>
+            <option value="Combustível">Combustível</option>
+            <option value="Estacionamento / pedágios">Estacionamento / pedágios</option>
+          </optgroup>
+
+          <optgroup label="🍽️ Comida">
+            <option value="Supermercado">Supermercado</option>
+            <option value="Padaria">Padaria</option>
+            <option value="Comer fora / Ifood">Comer fora / Ifood</option>
+            <option value="Outros comida">Outros comida</option>
+          </optgroup>
+
+          <optgroup label="👩 Christiane">
+            <option value="Curso Psicanálise">Curso Psicanálise</option>
+            <option value="Compras Chris">Compras Chris</option>
+            <option value="Médico Chris">Médico Chris</option>
+            <option value="Cabelo/unhas Chris">Cabelo/unhas Chris</option>
+            <option value="Vestuário Chris">Vestuário Chris</option>
+            <option value="Academia Chris">Academia Chris</option>
+            <option value="Outros Chris">Outros Chris</option>
+          </optgroup>
+
+          <optgroup label="👨 Jeferson">
+            <option value="Compras Jeff">Compras Jeff</option>
+            <option value="Academia Jeff">Academia Jeff</option>
+            <option value="Outros Jeff">Outros Jeff</option>
+          </optgroup>
+
+          <optgroup label="👧 Letícia">
+            <option value="Escola Letícia">Escola Letícia</option>
+            <option value="Cursos extras">Cursos extras</option>
+            <option value="Compras Letícia">Compras Letícia</option>
+            <option value="Cabelo/unhas Letícia">Cabelo/unhas Letícia</option>
+            <option value="Vestuário Letícia">Vestuário Letícia</option>
+            <option value="Dentista Letícia">Dentista Letícia</option>
+            <option value="Remédios Letícia">Remédios Letícia</option>
+          </optgroup>
+
+          <optgroup label="🐾 Animais de estimação">
+            <option value="Comida Pets">Comida Pets</option>
+            <option value="Banho e tosa">Banho e tosa</option>
+          </optgroup>
+
+          <optgroup label="📺 Assinaturas">
+            <option value="Celulares">Celulares</option>
+            <option value="Netflix">Netflix</option>
+            <option value="Rappi">Rappi</option>
+            <option value="Apple">Apple</option>
+            <option value="Wine">Wine</option>
+            <option value="Outras assinaturas">Outras assinaturas</option>
+          </optgroup>
+
+          <optgroup label="🧹 Serviços">
+            <option value="Seguro patrimonial">Seguro patrimonial</option>
+          </optgroup>
+
+          <optgroup label="🎉 Entretenimento">
+            <option value="Bares e Restaurantes">Bares e Restaurantes</option>
+            <option value="Jantar / almoço com amigos">Jantar / almoço com amigos</option>
+            <option value="Passeios em família">Passeios em família</option>
+            <option value="Viagens">Viagens</option>
+          </optgroup>
+
+          <optgroup label="💳 Empréstimos">
+            <option value="Crédito imobiliário">Crédito imobiliário</option>
+            <option value="Consignado">Consignado</option>
+          </optgroup>
+
+          <optgroup label="🧾 Impostos">
+            <option value="IPTU">IPTU</option>
+            <option value="IOF">IOF</option>
+          </optgroup>
+
+          <optgroup label="🎁 Presentes e doações">
+            <option value="Aniversários">Aniversários</option>
+            <option value="Comemorações">Comemorações</option>
+          </optgroup>
+
+        </select>
+      </div>
+    <div class="form-group">
+      <label for="prioridade">3. Classificação de Prioridade:</label>
+      <input type="range" id="prioridade" name="prioridade" min="0" max="10" value="10" oninput="document.getElementById('prioridade_valor').innerText = this.value">
+      <div class="scale-labels">
+        <span>0 (Corte Imediato)</span>
+        <span id="prioridade_valor">10</span>
+        <span>10 (Essencial)</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="valor_justo">4. Valor atual, ou que acha justo (R$):</label>
+      <input type="text" id="valor_justo" name="valor_justo" placeholder="Preenchido automaticamente">
+    </div>
+
+    <button type="submit">Adicionar Despesa à Tabela</button>
+  </form>
+
+  <div id="resumo-section">
+    <h3>Resumo das Classificações</h3>
+    <button class="copy-button" onclick="copyTable()" id="copy-btn">Copiar Tabela para Excel/Planilha</button>
+    <table id="resumo-tabela">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Despesa</th>
+          <th>Prioridade</th>
+          <th>Valor Justo (R$)</th>
+        </tr>
+      </thead>
+      <tbody id="tabela-corpo"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const despesasPorCategoria = {
+  "🏠 Moradia": {
+    "Condomínio": 1512.94, "Celular / Internet (Claro)": 391.71, "Conta de luz": 350.00, "Gás": 250.00, "TV": 0.00,
+    "Seguro do apartamento": 38.32, "Manutenção ou reparos casa": 0.00, "Outros para casa": 0.00
+  },
+  "🚗 Transporte": {
+    "Lavagem": 140.00, "Combustível": 25.00, "Estacionamento / pedágios": 30.00
+  },
+  "🍽️ Comida": {
+    "Supermercado": 900.00, "Padaria": 60.00, "Comer fora / Ifood": 880.00, "Outros comida": 400.00
+  },
+  "👩 Christiane": {
+    "Curso Psicanálise": 831.00, "Compras Chris": 250.00, "Médico Chris": 200.00, "Cabelo/unhas Chris": 200.00,
+    "Vestuário Chris": 200.00, "Academia Chris": 139.00, "Outros Chris": 100.00
+  },
+  "👨 Jeferson": {
+    "Compras Jeff": 44.00, "Academia Jeff": 45.00, "Outros Jeff": 130.00
+  },
+  "👧 Letícia": {
+    "Escola Letícia": 2388.92, "Cursos extras": 332.00, "Compras Letícia": 200.00, "Cabelo/unhas Letícia": 60.00,
+    "Vestuário Letícia": 150.00, "Dentista Letícia": 57.00, "Remédios Letícia": 110.00
+  },
+  "🐾 Animais de estimação": {
+    "Comida Pets": 150.00, "Banho e tosa": 20.00
+  },
+  "📺 Assinaturas": {
+    "Celulares": 600.00, "Netflix": 75.90, "Rappi": 39.90, "Apple": 50.00, "Wine": 56.00, "Outras assinaturas": 49.00
+  },
+  "🧹 Serviços": {
+    "Seguro patrimonial": 140.90
+  },
+  "🎉 Entretenimento": {
+    "Bares e Restaurantes": 300.00, "Jantar / almoço com amigos": 200.00, "Passeios em família": 100.00, "Viagens": 100.00
+  },
+  "💳 Empréstimos": {
+    "Crédito imobiliário": 3235.00, "Consignado": 1898.11
+  },
+  "🧾 Impostos": {
+    "IPTU": 404.47, "IOF": 280.00
+  },
+  "🎁 Presentes e doações": {
+    "Aniversários": 200.00, "Comemorações": 100.00
+  }
+};
+
+window.addEventListener('DOMContentLoaded', () => {
+  const selectDespesa = document.getElementById('despesa');
+  const valorJustoInput = document.getElementById('valor_justo');
+  const form = document.getElementById('despesa-form');
+  const tabelaCorpo = document.getElementById('tabela-corpo');
+  const prioridadeValor = document.getElementById('prioridade_valor');
+
+  // --- Índice plano: despesa -> valor ---
+  const despesasPlano = {};
+  for (const categoria in despesasPorCategoria) {
+    for (const despesa in despesasPorCategoria[categoria]) {
+      despesasPlano[despesa] = despesasPorCategoria[categoria][despesa];
+    }
+  }
+
+  // --- Preenche o select com optgroups ---
+  const placeholder = Array.from(selectDespesa.querySelectorAll('option')).find(o => !o.value) || null;
+  selectDespesa.innerHTML = '';
+  if (placeholder) selectDespesa.appendChild(placeholder);
+
+  for (const categoria in despesasPorCategoria) {
+    const optgroup = document.createElement('optgroup');
+    optgroup.label = categoria;
+    for (const despesa in despesasPorCategoria[categoria]) {
+      const option = document.createElement('option');
+      option.value = despesa;
+      option.text = despesa; // Safari precisa do .text também
+      optgroup.appendChild(option);
+    }
+    selectDespesa.appendChild(optgroup);
+  }
+
+  // --- Atualiza valor sugerido ---
+  function atualizarValorSugerido() {
+    const key = selectDespesa.value;
+    if (!key) {
+      valorJustoInput.value = '';
+      return;
+    }
+    const valor = despesasPlano[key];
+    valorJustoInput.value = valor !== undefined ? valor.toFixed(2).replace('.', ',') : '';
+  }
+
+  selectDespesa.addEventListener('change', atualizarValorSugerido);
+  selectDespesa.addEventListener('input', atualizarValorSugerido);
+  selectDespesa.addEventListener('blur', atualizarValorSugerido);
+  setTimeout(atualizarValorSugerido, 50);
+
+  // --- Submit do formulário ---
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    const nome = form.nome.value.trim();
+    const despesa = form.despesa.value;
+    const prioridade = form.prioridade.value;
+    const valorJusto = form.valor_justo.value;
+
+    if (!nome || !despesa) return;
+
+    const novaLinha = tabelaCorpo.insertRow();
+    novaLinha.insertCell().outerHTML = `<td contenteditable="true">${nome}</td>`;
+    novaLinha.insertCell().outerHTML = `<td contenteditable="true">${despesa}</td>`;
+    novaLinha.insertCell().outerHTML = `<td contenteditable="true">${prioridade}</td>`;
+    novaLinha.insertCell().outerHTML = `<td contenteditable="true">${valorJusto}</td>`;
+
+    const optionToRemove = selectDespesa.querySelector(`option[value="${despesa.replace(/(["\\])/g, '\\$1')}"]`);
+    if (optionToRemove) {
+      const nextOption = optionToRemove.nextElementSibling && optionToRemove.nextElementSibling.tagName === 'OPTION'
+        ? optionToRemove.nextElementSibling
+        : Array.from(selectDespesa.querySelectorAll('option')).find(o => o.value && o !== optionToRemove);
+
+      optionToRemove.remove();
+
+      setTimeout(() => {
+        if (nextOption) {
+          selectDespesa.value = nextOption.value;
+          selectDespesa.dispatchEvent(new Event('change', { bubbles: true }));
+          atualizarValorSugerido();
+        } else {
+          selectDespesa.selectedIndex = 0;
+          valorJustoInput.value = '';
+        }
+      }, 0);
+    }
+
+    form.reset();
+    form.nome.value = nome;
+    if (prioridadeValor) prioridadeValor.innerText = '10';
+    form.despesa.focus();
+  });
+
+  // --- Copiar tabela ---
+  window.copyTable = function() {
+    const table = document.getElementById('resumo-tabela');
+    let csv = '';
+    const headers = Array.from(table.querySelectorAll('th')).map(th => th.innerText);
+    csv += headers.join('\t') + '\n';
+    table.querySelectorAll('tbody tr').forEach(row => {
+      const rowData = Array.from(row.querySelectorAll('td')).map(td => td.innerText);
+      if (rowData.length > 0) csv += rowData.join('\t') + '\n';
+    });
+    navigator.clipboard.writeText(csv).then(() => {
+      const btn = document.getElementById('copy-btn');
+      const originalText = btn.textContent;
+      btn.textContent = 'Copiado!';
+      setTimeout(() => btn.textContent = originalText, 2000);
+      document.getElementById('nome').value = '';
+    }).catch(err => {
+      alert('Não foi possível copiar. Selecione e copie manualmente.');
+      console.error(err);
+    });
+  };
+});
+</script>
+</body>
+</html>
